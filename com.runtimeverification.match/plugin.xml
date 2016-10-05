@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension point="org.eclipse.ui.startup">
+      <startup class="com.runtimeverification.match.startup.StartupClass"/>
+      <!--
+      <startup class="com.runtimeverification.match.startup.KServerStartupClass"/>
+      -->
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            name="RV Match Commands"
+            id="com.runtimeverification.match.commands.category">
+      </category>
+      <!--
+      <command
+            name="Use the K Server"
+            categoryId="com.runtimeverification.match.commands.category"
+            id="com.runtimeverification.match.commands.kServerCommand">
+            <state
+                  class="org.eclipse.ui.handlers.RegistryToggleState:true"
+                  id="org.eclipse.ui.commands.toggleState">
+            </state>
+      </command>
+      -->
+       <command
+            name="Select the RV Build Mode"
+            categoryId="com.runtimeverification.match.commands.category"
+            id="com.runtimeverification.match.commands.selectBuildCommand">
+      </command>
+       <command
+            name="Clear RV Match Markers"
+            categoryId="com.runtimeverification.match.commands.category"
+            id="com.runtimeverification.match.commands.clearMarkersCommand">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+         <!--
+      <handler
+            commandId="com.runtimeverification.match.commands.kServerCommand"
+            class="com.runtimeverification.match.handlers.KServerHandler">
+      </handler>
+      -->
+      <handler
+            commandId="com.runtimeverification.match.commands.selectBuildCommand"
+            class="com.runtimeverification.match.handlers.SelectBuildHandler">
+      </handler>
+      <handler
+            commandId="com.runtimeverification.match.commands.clearMarkersCommand"
+            class="com.runtimeverification.match.handlers.ClearMarkersHandler">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.main.menu?after=additions">
+         <menu
+               label="RV Match"
+               mnemonic="M"
+               id="com.runtimeverification.match.menus.rvMatchMenu">
+               <!--
+            <command
+                  commandId="com.runtimeverification.match.commands.kServerCommand"
+                  mnemonic="S"
+                  style="toggle"
+                  id="com.runtimeverification.match.menus.kServerCommand">
+            </command>
+            -->
+            <command
+                  commandId="com.runtimeverification.match.commands.selectBuildCommand"
+                  mnemonic="S"
+                  id="com.runtimeverification.match.menus.selectBuildCommand">
+            </command>
+            <command
+                  commandId="com.runtimeverification.match.commands.clearMarkersCommand"
+                  mnemonic="S"
+                  id="com.runtimeverification.match.menus.clearMarkersCommand">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+
+</plugin>

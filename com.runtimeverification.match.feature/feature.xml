@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="com.runtimeverification.match.feature"
+      label="RV Match Feature"
+      version="1.0.2.alpha"
+      provider-name="Runtime Verification">
+
+   <description url="http://runtimeverification.com/eclipse">
+      Feature for integrating RV Match with Eclipse
+   </description>
+
+   <copyright url="http://www.example.com/copyright">
+      [Enter Copyright Description here.]
+   </copyright>
+
+   <license url="http://www.example.com/license">
+      [Enter License Description here.]
+   </license>
+
+   <plugin
+         id="com.runtimeverification.match"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
