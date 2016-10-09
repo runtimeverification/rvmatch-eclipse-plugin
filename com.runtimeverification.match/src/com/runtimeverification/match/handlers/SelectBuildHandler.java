@@ -53,8 +53,8 @@ public class SelectBuildHandler extends AbstractHandler {
 					IManagedProject imgr = ManagedBuildManager.getBuildInfo(currentProject).getManagedProject();
 					IConfiguration conf = imgr.getConfiguration(rv.getId());
 					String reportFile = getReportFilePath(currentProject).toString();
-					conf.setPostbuildStep("parse-kcc-to-gcc " + reportFile);
-					conf.setPostannouncebuildStep("Parsing kcc output");
+//					conf.setPostbuildStep("parse-kcc-to-gcc " + reportFile);
+//					conf.setPostannouncebuildStep("Parsing kcc output");
 					IToolChain toolChain = conf.getToolChain();
 					ITool[] tools = toolChain.getTools();
 					for (ITool tool : tools) {
@@ -67,7 +67,7 @@ public class SelectBuildHandler extends AbstractHandler {
 							option = tool.getOptionBySuperClassId("gnu.c.compiler.option.misc.other");
 							if (option != null) {
 								String oldValue = option.getStringValue().replaceAll("-fmessage-length=\\d+",""); 
-								ManagedBuildManager.setOption(conf, tool, option, oldValue + " -fissue-report=" + reportFile);
+								ManagedBuildManager.setOption(conf, tool, option, oldValue);// + " -fissue-report=" + reportFile);
 							}
 							option = tool.getOptionBySuperClassId("gnu.c.link.option.ldflags");
 							if (option != null) {
