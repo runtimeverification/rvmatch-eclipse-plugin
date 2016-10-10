@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,19 +34,21 @@ import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.core.sourcelookup.containers.LocalFileStorage;
 import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.debug.ui.sourcelookup.ISourceLookupResult;
-import org.eclipse.linuxtools.internal.valgrind.core.ValgrindCoreParser;
-import org.eclipse.linuxtools.internal.valgrind.core.ValgrindError;
-import org.eclipse.linuxtools.internal.valgrind.core.ValgrindInfo;
-import org.eclipse.linuxtools.internal.valgrind.core.ValgrindStackFrame;
-import org.eclipse.linuxtools.internal.valgrind.launch.ValgrindLaunchPlugin;
-import org.eclipse.linuxtools.internal.valgrind.ui.ValgrindUIPlugin;
-import org.eclipse.linuxtools.internal.valgrind.ui.ValgrindViewPart;
+import org.eclipse.linuxtools.valgrind.launch.ProjectBuildListener;
+import org.eclipse.linuxtools.valgrind.ui.ValgrindViewPart;
+
+import com.runtimeverification.match.RVMatchPlugin;
+
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
-import org.eclipse.linuxtools.internal.valgrind.launch.Messages;
-import org.eclipse.linuxtools.internal.valgrind.launch.ProjectBuildListener;
+import org.eclipse.linuxtools.valgrind.core.ValgrindCoreParser;
+import org.eclipse.linuxtools.valgrind.core.ValgrindError;
+import org.eclipse.linuxtools.valgrind.core.ValgrindInfo;
+import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
 import org.eclipse.cdt.debug.core.CDebugUtils;
 
 public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
+    public static final String PLUGIN_ID = "com.runtimeverification.match"; //$NON-NLS-1$
+    public static final String MARKER_TYPE = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 
 	public static void checkRVMatchOutput(ILaunch launch) throws CoreException, IOException {
 		ILaunchConfiguration config = launch.getLaunchConfiguration();
@@ -57,16 +58,16 @@ public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
 			System.out.println("Processing " + outputFile.toString());
 			IValgrindMessage[] messages = parseLogs(outputFile, launch);
 			outputFile.toFile().delete();
-			ValgrindUIPlugin.getDefault().createView("RV Match", null);
+			RVMatchPlugin.getDefault().createView("RV Match", null);
 			// set log messages
-			ValgrindViewPart view = ValgrindUIPlugin.getDefault().getView();
+			ValgrindViewPart view = RVMatchPlugin.getDefault().getView();
 			view.setMessages(messages);
 
 			// refresh view
-			ValgrindUIPlugin.getDefault().refreshView();
+			RVMatchPlugin.getDefault().refreshView();
 
 			// show view
-			ValgrindUIPlugin.getDefault().showView();
+			RVMatchPlugin.getDefault().showView();
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(
 					new ProjectBuildListener(project.getProject()), IResourceChangeEvent.POST_BUILD);
 		} else {
@@ -132,7 +133,7 @@ public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
 
 		if (results.length == 0){
 			results = new IValgrindMessage[1];
-			results[0] = new ValgrindInfo(null, Messages.getString("ValgrindOutputView.No_output"), launch); //$NON-NLS-1$
+			results[0] = new ValgrindInfo(null, "RV Match found no problems to report", launch); //$NON-NLS-1$
 		}
 		messages.addAll(Arrays.asList(results));
 		createMarkers(results);
@@ -173,7 +174,7 @@ public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
 
 							if (sourceElement instanceof IResource) {
 								IResource resource = (IResource) sourceElement;
-								marker = resource.createMarker(ValgrindLaunchPlugin.MARKER_TYPE);
+								marker = resource.createMarker(MARKER_TYPE);
 								marker.setAttribute(IMarker.MESSAGE, message.getText());
 								marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 								marker.setAttribute(IMarker.LINE_NUMBER, frame.getLine());

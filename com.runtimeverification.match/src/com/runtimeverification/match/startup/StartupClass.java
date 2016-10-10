@@ -11,6 +11,9 @@ import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
 import org.eclipse.ui.IStartup;
+import org.eclipse.ui.console.ConsolePlugin;
+import org.eclipse.ui.console.IConsoleManager;
+import org.eclipse.ui.console.IConsole;
 
 import com.runtimeverification.match.handlers.PasteOutputToBuildConsoleHandler;
 

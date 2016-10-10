@@ -16,9 +16,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.linuxtools.internal.valgrind.launch.ValgrindLaunchPlugin;
-import org.eclipse.linuxtools.internal.valgrind.ui.ValgrindUIPlugin;
 import org.eclipse.swt.widgets.Display;
+
+import com.runtimeverification.match.RVMatchPlugin;
 
 public class ClearMarkersHandler extends AbstractHandler {
 
@@ -26,12 +26,12 @@ public class ClearMarkersHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) {
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         try {
-            root.deleteMarkers(ValgrindLaunchPlugin.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            root.deleteMarkers(PasteOutputToBuildConsoleHandler.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
         } catch (CoreException e) {
             // do nothing for now
         }
         // Clear Valgrind view
-        Display.getDefault().syncExec(() -> ValgrindUIPlugin.getDefault().resetView());
+        Display.getDefault().syncExec(() -> RVMatchPlugin.getDefault().resetView());
         return null;
     }
 

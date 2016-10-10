@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?eclipse version="3.4"?>
 <plugin>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="com.runtimeverification.match.ui"
+            name="RV Match Views">
+      </category>
+   </extension>
    <extension point="org.eclipse.ui.startup">
       <startup class="com.runtimeverification.match.startup.StartupClass"/>
       <!--
@@ -81,5 +88,118 @@
          </menu>
       </menuContribution>
    </extension>
+   <!--
+   <extension point="org.eclipse.ui.console.consolePatternMatchListeners">
+      <consolePatternMatchListener
+            class="com.runtimeverification.match.handlers.ConsolePatternMatcher"
+            id="com.runtimeverification.match.handlers.ConsolePatternMatcher"
+             regex="  at .*">
+         <enablement>
+            <test 
+                  property="org.eclipse.ui.console.consoleTypeTest"
+                  value="org.eclipse.debug.ui.ProcessConsoleType"/>
+         </enablement>
+      </consolePatternMatchListener>
+   </extension>
+   -->
 
+   <extension-point id="com.runtimeverification.match.rvMatchToolViews" name="RV Match Tool" schema="schema/rvMatchToolViews.exsd"/>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="com.runtimeverification.match.ui"
+            class="org.eclipse.linuxtools.valgrind.ui.ValgrindViewPart"
+            icon="icons/RV-icon.png"
+            id="com.runtimeverification.match.rvmatchview"
+            name="RV Match Error Console"
+            restorable="true">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="toolbar:com.runtimeverification.match.rvmatchview">
+         <separator
+               name="toolbarLocal"
+               visible="false">
+         </separator>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:com.runtimeverification.match.rvmatchview?after=toolbarLocal">
+         <separator
+               name="toolbarExtensions"
+               visible="false">
+         </separator>
+      </menuContribution>
+   </extension>
+   <extension
+         id="com.runtimeverification.match.marker"
+         name="RV Match Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute name="externalLocation"/>
+   </extension>   
+    <extension
+          point="org.eclipse.ui.editors.annotationTypes">
+       <type
+             markerSeverity="2"
+             markerType="com.runtimeverification.match.marker"
+             name="com.runtimeverification.match.annotation.error"
+             super="org.eclipse.ui.workbench.texteditor.error">
+       </type>
+       <type
+             markerSeverity="1"
+             markerType="com.runtimeverification.match.marker"
+             name="com.runtimeverification.match.annotation.warning"
+             super="org.eclipse.ui.workbench.texteditor.warning">
+       </type>
+       <type
+             markerSeverity="0"
+             markerType="com.runtimeverification.match.marker"
+             name="com.runtimeverification.match.annotation.info"
+             super="org.eclipse.ui.workbench.texteditor.info">
+       </type>
+    </extension>
+      <extension
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification
+              annotationType="com.runtimeverification.match.annotation.error"
+            label="RV Match Errors"
+            icon="icons/RV-error.png"
+            quickFixIcon="icons/RV-error.png"
+            presentationLayer="6">
+      </specification>
+            <specification
+              annotationType="com.runtimeverification.match.annotation.warning"
+            label="RV Match Warnings"
+            icon="icons/RV-warning.png"
+            quickFixIcon="icons/RV-warning.png"
+            presentationLayer="5">
+      </specification>
+      <specification
+              annotationType="com.runtimeverification.match.annotation.info"
+            label="RV Match Info"
+            icon="icons/RV-info.png"
+            presentationLayer="4">
+      </specification>
+         </extension>
+<!--   
+   <extension
+        point="org.eclipse.ui.ide.markerResolution">
+     <markerResolutionGenerator
+           class="org.eclipse.linuxtools.internal.valgrind.ui.quickfixes.ValgrindResolutionGenerator"
+           markerType="com.runtimeverification.match.marker">
+     </markerResolutionGenerator>
+  </extension>
+  -->
+   
 </plugin>
