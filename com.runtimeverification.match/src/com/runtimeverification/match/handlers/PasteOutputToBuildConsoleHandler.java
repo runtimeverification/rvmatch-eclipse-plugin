@@ -2,23 +2,22 @@ package com.runtimeverification.match.handlers;
 
 
 import java.io.BufferedReader;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.StringReader;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.cdt.core.model.ICProject;
-import org.eclipse.core.commands.AbstractHandler;
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -26,10 +25,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.filesystem.URIUtil;
-import org.eclipse.debug.core.DebugPlugin;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.core.sourcelookup.containers.LocalFileStorage;
 import org.eclipse.debug.ui.DebugUITools;
@@ -42,43 +39,59 @@ import com.runtimeverification.match.RVMatchPlugin;
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.ValgrindCoreParser;
 import org.eclipse.linuxtools.valgrind.core.ValgrindError;
-import org.eclipse.linuxtools.valgrind.core.ValgrindInfo;
 import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
 import org.eclipse.cdt.debug.core.CDebugUtils;
 
-public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
+public class PasteOutputToBuildConsoleHandler {
     public static final String PLUGIN_ID = "com.runtimeverification.match"; //$NON-NLS-1$
     public static final String MARKER_TYPE = PLUGIN_ID + ".marker"; //$NON-NLS-1$
-
-	public static void checkRVMatchOutput(ILaunch launch) throws CoreException, IOException {
+	private ILaunch launch;
+    
+    public PasteOutputToBuildConsoleHandler(ILaunch launch) {
+    	this.launch = launch;
 		ILaunchConfiguration config = launch.getLaunchConfiguration();
-		ICProject project = CDebugUtils.getCProject(config);
-		Path outputFile = SelectBuildHandler.getReportFilePath(project.getProject());
-		if (outputFile.toFile().exists()) {
-			System.out.println("Processing " + outputFile.toString());
-			IValgrindMessage[] messages = parseLogs(outputFile, launch);
-			outputFile.toFile().delete();
+		try {
+			project = CDebugUtils.getCProject(config);
+			outputPath = SelectBuildHandler.getReportFilePath(project.getProject());
+			bin = new BufferedReader(new FileReader(outputPath.toFile()));
 			RVMatchPlugin.getDefault().createView("RV Match", null);
-			// set log messages
-			ValgrindViewPart view = RVMatchPlugin.getDefault().getView();
-			view.setMessages(messages);
+			view = RVMatchPlugin.getDefault().getView();
+			parser = new ValgrindCoreParser(launch);
 
-			// refresh view
-			RVMatchPlugin.getDefault().refreshView();
+		} catch (CoreException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    }
+    
+    public IProject getProject() {
+    	return project.getProject();
+    }
 
-			// show view
-			RVMatchPlugin.getDefault().showView();
+	public void checkRVMatchOutput() throws CoreException, IOException {
+		if (outputPath.toFile().exists()) {
+			System.out.println("Processing " + outputPath.toString());
+			parseLogs();
+			outputPath.toFile().delete();
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(
 					new ProjectBuildListener(project.getProject()), IResourceChangeEvent.POST_BUILD);
 		} else {
-			System.out.println("File " + outputFile.toString() + " not found.");
+			System.out.println("File " + outputPath.toString() + " not found.");
 		}
 	}
 
-	private static List<List<String>> parseCSV(File in) throws IOException {
+	private List<List<String>> parseCSV() throws IOException {
 		List<List<String>> records = new ArrayList<>();
+		List<String> record;
+		while ((record = parseCVSRecord()) != null) {
+			records.add(record);
+		}
+		return records;
+	}
+
+	public List<String> parseCVSRecord() throws IOException {
 		List<String> record = new ArrayList<>();
-		BufferedReader bin = new BufferedReader(new FileReader(in));
 		boolean inString = false;
 		boolean skipWhiteSpace = true;
 		StringBuilder value = new StringBuilder();
@@ -101,47 +114,58 @@ public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
 				record.add(value.toString().trim());
 				value.setLength(0);
 				if (c == '\n') {
-					records.add(record);
-					record = new ArrayList<>();
-					skipWhiteSpace = true;
+					return record;
 				}
 			} else {
 				value.append((char)c);
 			}
 		}
-		return records;
+		return null;
 	}
 
+	private List<IValgrindMessage> messages = new ArrayList<>();
+	private ICProject project;
+	private ValgrindViewPart view;
+	private Path outputPath;
+	private BufferedReader bin;
+	private ValgrindCoreParser parser;
 
-	public static IValgrindMessage[] parseLogs(Path outputPath, ILaunch launch) throws IOException, CoreException {
-
-		File rvFile = outputPath.toFile();
-		List<List<String>> records = parseCSV(rvFile);
-		File valgrindFile = outputPath.getParent().resolve("valgrind_1.txt").toFile();
-		PrintStream writer = new PrintStream(valgrindFile); 
+	public void parseLogs() throws IOException, CoreException {
+			
+		List<List<String>> records = parseCSV();
 		for (List<String> record : records) {
-			writer.printf(" %s %s (%s).\n  See %s\n  %s\n", record.get(1), record.get(2), record.get(0), record.get(3), record.get(4));
+			handleRecord(record);
+
 		}
-		writer.close();
-		
-
-		List<IValgrindMessage> messages = new ArrayList<>();
-
-		File log = valgrindFile;
-		ValgrindCoreParser parser = new ValgrindCoreParser(log, launch);
-		IValgrindMessage[] results = parser.getMessages();
-
-		if (results.length == 0){
-			results = new IValgrindMessage[1];
-			results[0] = new ValgrindInfo(null, "RV Match found no problems to report", launch); //$NON-NLS-1$
-		}
-		messages.addAll(Arrays.asList(results));
-		createMarkers(results);
-
-		return messages.toArray(new IValgrindMessage[messages.size()]);
+		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+				new ProjectBuildListener(project.getProject()), IResourceChangeEvent.POST_BUILD);
 	}
 
-	public static void createMarkers(IValgrindMessage[] messages) throws CoreException {
+	/**
+	 * @param parser
+	 * @param record
+	 * @throws IOException
+	 * @throws CoreException
+	 */
+	public void handleRecord(List<String> record) throws IOException, CoreException {
+		StringBuilder sb = new StringBuilder();
+		Formatter formatter = new Formatter(sb);
+		formatter.format(" %s %s (%s).\n  See %s\n  %s\n", record.get(1), record.get(2), record.get(0), record.get(3), record.get(4));
+		formatter.close();
+		BufferedReader br = new BufferedReader(new StringReader(sb.toString()));
+		List<IValgrindMessage> resultList = parser.parseBuffer(br);
+		messages.addAll(resultList);
+		createMarkers(resultList.toArray(new IValgrindMessage[resultList.size()]));
+		view.setMessages(messages.toArray(new IValgrindMessage[messages.size()]));
+
+		// refresh view
+		RVMatchPlugin.getDefault().refreshView();
+
+		// show view
+		RVMatchPlugin.getDefault().showView();
+	}
+
+	public void createMarkers(IValgrindMessage[] messages) throws CoreException {
 		// find the topmost stack frame within the workspace to annotate with marker
 		// traverse nested errors as well
 		Stack<IValgrindMessage> messageStack = new Stack<>();
@@ -189,19 +213,4 @@ public class PasteOutputToBuildConsoleHandler extends AbstractHandler {
 			}
 		}
 	}
-
-	@Override
-	public Object execute(ExecutionEvent event) throws ExecutionException {
-		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
-		ILaunch[] launches = manager.getLaunches();
-		ILaunch launch = launches[launches.length-1];
-        try {
-			checkRVMatchOutput(launch);
-		} catch (CoreException | IOException e) {
-			throw new ExecutionException(e.getMessage(), e);
-		}
-		
-		return null;
-	}
-
 }

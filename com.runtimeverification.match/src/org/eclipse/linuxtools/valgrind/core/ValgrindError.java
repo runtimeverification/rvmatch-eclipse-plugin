@@ -19,7 +19,6 @@ import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
  * Valgrind Error message object
  */
 public class ValgrindError extends AbstractValgrindMessage {
-    protected int pid;
 
     /**
      * Constructor
@@ -28,13 +27,12 @@ public class ValgrindError extends AbstractValgrindMessage {
      * @param launch - launch object can be null
      * @param pid - process pid
      */
-    public ValgrindError(IValgrindMessage parent, String text, ILaunch launch, int pid) {
+    public ValgrindError(IValgrindMessage parent, String text, ILaunch launch) {
         super(parent, text, launch);
-        this.pid = pid;
     }
 
     @Override
     public String getText() {
-        return super.getText() + " [PID: " + pid + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        return super.getText(); //$NON-NLS-1$ //$NON-NLS-2$
     }
 }
