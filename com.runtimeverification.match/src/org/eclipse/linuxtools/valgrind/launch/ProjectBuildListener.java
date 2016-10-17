@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
-import com.runtimeverification.match.ReportExecutionOutput;
 import com.runtimeverification.match.RVMatchPlugin;
 
 /**
@@ -110,9 +109,8 @@ public class ProjectBuildListener implements IResourceChangeListener {
             // clear valgrind error view
             Display.getDefault().syncExec(() -> RVMatchPlugin.getDefault().resetView());
         } catch (CoreException e) {
-            Status status = new Status(IStatus.ERROR, pluginId, e.getMessage());
-            e.printStackTrace();
-//            ValgrindLaunchPlugin.getDefault().getLog().log(status);
+        	Status status = new Status(IStatus.ERROR, pluginId, e.getMessage());
+        	RVMatchPlugin.getDefault().getLog().log(status);
         }
     }
 }

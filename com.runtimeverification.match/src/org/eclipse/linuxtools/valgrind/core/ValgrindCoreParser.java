@@ -29,7 +29,6 @@ import org.eclipse.debug.core.sourcelookup.IPersistableSourceLocator2;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.linuxtools.valgrind.core.ValgrindError;
 import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
-import org.eclipse.linuxtools.valgrind.core.CommandLineConstants;
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.ValgrindParserUtils;
 

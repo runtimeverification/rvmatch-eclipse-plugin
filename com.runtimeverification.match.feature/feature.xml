@@ -2,7 +2,7 @@
 <feature
       id="com.runtimeverification.match.feature"
       label="RV Match Feature"
-      version="1.0.2.alpha"
+      version="1.0.2.qualifier"
       provider-name="Runtime Verification">
 
    <description url="http://runtimeverification.com/eclipse">

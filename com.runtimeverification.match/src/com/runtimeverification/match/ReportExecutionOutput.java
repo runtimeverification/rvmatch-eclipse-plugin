@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Formatter;
 import java.util.List;
 
 import org.eclipse.cdt.core.model.ICProject;

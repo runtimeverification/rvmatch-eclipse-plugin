@@ -12,7 +12,6 @@
 package org.eclipse.linuxtools.valgrind.core;
 
 import org.eclipse.debug.core.ILaunch;
-import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
 
 
 /**

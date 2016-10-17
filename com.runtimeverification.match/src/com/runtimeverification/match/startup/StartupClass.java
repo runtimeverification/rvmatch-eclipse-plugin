@@ -19,19 +19,13 @@ import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.debug.core.ILaunchListener;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.core.model.IProcess;
-import org.eclipse.debug.internal.ui.commands.actions.TerminateAllAction;
-import org.eclipse.linuxtools.valgrind.core.ValgrindCoreParser;
 import org.eclipse.linuxtools.valgrind.launch.ProjectBuildListener;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
-import org.eclipse.ui.console.ConsolePlugin;
-import org.eclipse.ui.console.IConsoleManager;
-import org.eclipse.ui.console.IConsole;
 
 import com.runtimeverification.match.ReportExecutionOutput;
 import com.runtimeverification.match.RVMatchPlugin;
 import com.runtimeverification.match.handlers.SelectBuildHandler;
-import com.runtimeverification.match.startup.StartupClass.ReporterThread;
 
 public class StartupClass implements IStartup {
 	public class ReporterThread extends Thread {
@@ -94,12 +88,18 @@ public class StartupClass implements IStartup {
 
 			@Override
 			public void launchChanged(ILaunch launch) {
-				System.out.println(" Launch changed!");
+				ILaunchConfiguration config = launch.getLaunchConfiguration();
+				try {
+					if (!config.getAttribute("org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR", "").startsWith("rv.")) {
+						return;
+					}
+				} catch (CoreException e) {
+					e.printStackTrace();
+				}
 				reportingThread = new ReporterThread(launch);
 				
 				reportingThread.start();
 				IProcess[] processes = launch.getProcesses();
-				System.out.println("We have " + processes.length + " processes.");
 				for (IProcess process : processes) {
 					if (!process.isTerminated()) {
 						DebugPlugin.getDefault().addDebugEventListener(new
@@ -126,8 +126,11 @@ public class StartupClass implements IStartup {
 			@Override
 			public void launchAdded(ILaunch launch) {
 				ILaunchConfiguration config = launch.getLaunchConfiguration();
-				ICProject project;
 				try {
+					if (!config.getAttribute("org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR", "").startsWith("rv.")) {
+						return;
+					}
+					ICProject project;
 					project = CDebugUtils.getCProject(config);
 					Path reportFilePath = SelectBuildHandler.getReportFilePath(project.getProject()).toAbsolutePath();
 					File outputFile = reportFilePath.toFile();				
