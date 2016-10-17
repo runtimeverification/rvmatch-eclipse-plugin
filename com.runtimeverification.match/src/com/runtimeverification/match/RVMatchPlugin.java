@@ -34,6 +34,7 @@ public class RVMatchPlugin extends AbstractUIPlugin {
 
     // The plug-in ID
     public static final String PLUGIN_ID = "com.runtimeverification.match"; //$NON-NLS-1$
+    public static final String MARKER_TYPE = PLUGIN_ID + ".marker"; //$NON-NLS-1$
 
     // Extension point constants
     private static final String VIEW_EXT_ID = "rvMatchToolViews"; //$NON-NLS-1$

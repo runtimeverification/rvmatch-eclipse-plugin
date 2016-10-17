@@ -28,8 +28,8 @@ import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.IConsole;
 
+import com.runtimeverification.match.ReportExecutionOutput;
 import com.runtimeverification.match.RVMatchPlugin;
-import com.runtimeverification.match.handlers.PasteOutputToBuildConsoleHandler;
 import com.runtimeverification.match.handlers.SelectBuildHandler;
 import com.runtimeverification.match.startup.StartupClass.ReporterThread;
 
@@ -51,20 +51,20 @@ public class StartupClass implements IStartup {
 		@Override
 		public void run() {
 			try {
-				PasteOutputToBuildConsoleHandler outputParser = new PasteOutputToBuildConsoleHandler(launch); 
-				outputParser.getProject().deleteMarkers(PasteOutputToBuildConsoleHandler.MARKER_TYPE, true,IResource.DEPTH_INFINITE);
+				ReportExecutionOutput outputParser = new ReportExecutionOutput(launch); 
+				outputParser.getProject().deleteMarkers(RVMatchPlugin.MARKER_TYPE, true,IResource.DEPTH_INFINITE);
 
 				// clear valgrind error view
 				Display.getDefault().syncExec(() -> RVMatchPlugin.getDefault().resetView());
  
 				while (true) {
-					List<String> record =  outputParser.parseCVSRecord();
+					List<String> record =  outputParser.parseCSVRecord();
 					if (record != null) {
 						outputParser.handleRecord(record);
 					} else {
 						if (done) {
 							ResourcesPlugin.getWorkspace().addResourceChangeListener(
-									new ProjectBuildListener(outputParser.getProject()), IResourceChangeEvent.POST_BUILD);
+									new ProjectBuildListener(outputParser.getProject(), RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.MARKER_TYPE), IResourceChangeEvent.POST_BUILD);
 							
 							break;
 						}
@@ -133,9 +133,9 @@ public class StartupClass implements IStartup {
 					File outputFile = reportFilePath.toFile();				
 					if (outputFile.exists()) {
 						outputFile.delete();
-						Process process = new ProcessBuilder("mkfifo",reportFilePath.toString()).inheritIO().start();
-						process.waitFor();
 					}
+					Process process = new ProcessBuilder("mkfifo",reportFilePath.toString()).inheritIO().start();
+					process.waitFor();
 				} catch (CoreException | IOException | InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

@@ -22,8 +22,8 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
+import com.runtimeverification.match.ReportExecutionOutput;
 import com.runtimeverification.match.RVMatchPlugin;
-import com.runtimeverification.match.handlers.PasteOutputToBuildConsoleHandler;
 
 /**
  * Implementation of {@link IResourceChangeListener} that listens for project
@@ -33,9 +33,13 @@ public class ProjectBuildListener implements IResourceChangeListener {
 
     // project to keep track of
     private IProject project;
+	private String markerType;
+	private String pluginId;
 
-    public ProjectBuildListener(IProject targetProject) {
+    public ProjectBuildListener(IProject targetProject, String pluginId, String markerType) {
         project = targetProject;
+		this.pluginId = pluginId;
+        this.markerType = markerType;
     }
 
     @Override
@@ -101,12 +105,12 @@ public class ProjectBuildListener implements IResourceChangeListener {
         try {
 
             // remove project markers
-            project.deleteMarkers(PasteOutputToBuildConsoleHandler.MARKER_TYPE, true,IResource.DEPTH_INFINITE);
+            project.deleteMarkers(markerType, true,IResource.DEPTH_INFINITE);
 
             // clear valgrind error view
             Display.getDefault().syncExec(() -> RVMatchPlugin.getDefault().resetView());
         } catch (CoreException e) {
-            Status status = new Status(IStatus.ERROR, PasteOutputToBuildConsoleHandler.PLUGIN_ID, e.getMessage());
+            Status status = new Status(IStatus.ERROR, pluginId, e.getMessage());
             e.printStackTrace();
 //            ValgrindLaunchPlugin.getDefault().getLog().log(status);
         }
