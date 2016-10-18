@@ -1,6 +1,5 @@
-package com.runtimeverification.match;
 /*******************************************************************************
- * Copyright (c) 2008 Red Hat, Inc.
+ * Copyright (c) 2008, 2016 Red Hat, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +7,10 @@ package com.runtimeverification.match;
  *
  * Contributors:
  *    Elliott Baron <ebaron@redhat.com> - initial API and implementation
+ *    Traian Serbanuta <traian.serbanuta@runtimeverification.com> 
+ *        - customization for RV Match
  *******************************************************************************/
+package com.runtimeverification.match;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
