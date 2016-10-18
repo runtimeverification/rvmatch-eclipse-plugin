@@ -41,6 +41,11 @@
             categoryId="com.runtimeverification.match.commands.category"
             id="com.runtimeverification.match.commands.clearMarkersCommand">
       </command>
+      <command
+            name="Run with RV Match"
+            id="com.runtimeverification.match.commands.RVLauncher"
+            categoryId="com.runtimeverification.match.commands.category">
+      </command>  
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
@@ -50,6 +55,10 @@
             class="com.runtimeverification.match.handlers.KServerHandler">
       </handler>
       -->
+      <handler
+            commandId="com.runtimeverification.match.commands.RVLauncher"
+            class="com.runtimeverification.match.handlers.RVLauncherHandler">
+      </handler>
       <handler
             commandId="com.runtimeverification.match.commands.selectBuildCommand"
             class="com.runtimeverification.match.handlers.SelectBuildHandler">
@@ -76,32 +85,40 @@
             </command>
             -->
             <command
-                  commandId="com.runtimeverification.match.commands.selectBuildCommand"
-                  mnemonic="S"
-                  id="com.runtimeverification.match.menus.selectBuildCommand">
+                  commandId="com.runtimeverification.match.commands.RVLauncher"
+                  label="Run with RV Match"
+                  mnemonic="R"
+                  id="com.runtimeverification.match.menus.RVLauncherCommand">
             </command>
             <command
                   commandId="com.runtimeverification.match.commands.clearMarkersCommand"
                   mnemonic="S"
                   id="com.runtimeverification.match.menus.clearMarkersCommand">
             </command>
+            <command
+                  commandId="com.runtimeverification.match.commands.selectBuildCommand"
+                  mnemonic="S"
+                  id="com.runtimeverification.match.menus.selectBuildCommand">
+            </command>
          </menu>
       </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.ui.main.toolbar">
+         <toolbar
+               id="org.eclipse.debug.ui.launchActionSet">
+         </toolbar>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:org.eclipse.debug.ui.launchActionSet">
+         <command
+               commandId="com.runtimeverification.match.commands.RVLauncher"
+               tooltip="Build and launch current project using RV Match"
+               icon="icons/RV-icon.png"
+               id="com.runtimeverification.match.toolbars.RVLauncherCommand">
+         </command>
+                  <!-- style="pulldown" -->
+      </menuContribution>
    </extension>
-   <!--
-   <extension point="org.eclipse.ui.console.consolePatternMatchListeners">
-      <consolePatternMatchListener
-            class="com.runtimeverification.match.handlers.ConsolePatternMatcher"
-            id="com.runtimeverification.match.handlers.ConsolePatternMatcher"
-             regex="  at .*">
-         <enablement>
-            <test 
-                  property="org.eclipse.ui.console.consoleTypeTest"
-                  value="org.eclipse.debug.ui.ProcessConsoleType"/>
-         </enablement>
-      </consolePatternMatchListener>
-   </extension>
-   -->
 
    <extension-point id="com.runtimeverification.match.rvMatchToolViews" name="RV Match Tool" schema="schema/rvMatchToolViews.exsd"/>
    <extension
