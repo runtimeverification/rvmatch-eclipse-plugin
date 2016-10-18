@@ -20,6 +20,7 @@ import org.eclipse.debug.core.ILaunchConfigurationType;
 import org.eclipse.debug.core.ILaunchConfigurationWorkingCopy;
 import org.eclipse.debug.core.ILaunchManager;
 import org.eclipse.debug.internal.ui.DebugUIPlugin;
+import org.eclipse.debug.ui.DebugUITools;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.handlers.HandlerUtil;
@@ -40,7 +41,7 @@ public class RVLauncherHandler extends AbstractHandler {
 			
 			ILaunchConfiguration rvLaunch = createRVLaunchConfiguration(currentProject, getLastLaunch(currentProject));
 			if (rvLaunch != null) {
-				rvLaunch.launch(ILaunchManager.RUN_MODE, null);
+				DebugUITools.launch(rvLaunch, ILaunchManager.RUN_MODE);
 			} else {
 				RVMatchPlugin.logErrorMessage("Cannot run RV Match: no current project nor previous launch found.");				
 			}
