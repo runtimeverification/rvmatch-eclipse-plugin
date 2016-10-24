@@ -13,6 +13,9 @@
 package com.runtimeverification.match;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionPoint;
@@ -92,6 +95,15 @@ public class RVMatchPlugin extends AbstractUIPlugin {
         super.start(context);
         plugin = this;
         
+        IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+        try {
+            root.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+        } catch (CoreException e) {
+            // do nothing for now
+        }
+        // Clear Valgrind view
+        Display.getDefault().syncExec(() -> resetView());
+
         Properties c11TOC = new Properties();
         InputStream in = RVMatchPlugin.class.getResourceAsStream("/C11TOC.properties");
         c11TOC.load(in);
