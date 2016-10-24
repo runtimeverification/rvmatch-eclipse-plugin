@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.linuxtools.valgrind.ui;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.model.ISourceLocator;
 import org.eclipse.debug.ui.DebugUITools;
@@ -38,8 +41,11 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
+import com.runtimeverification.match.RVMatchCitation;
 import com.runtimeverification.match.RVMatchPlugin;
 
 /**
@@ -55,11 +61,13 @@ public class CoreMessagesViewer {
      * @since 0.10
      */
     private static final String VALGRIND_INFO = "Valgrind_Info"; //$NON-NLS-1$
+    private static final String LINK = "RV_Link"; //$NON-NLS-1$
     private static final String VALGRIND_ERROR_IMAGE = "icons/RV-error.png"; //$NON-NLS-1$
     /**
      * @since 0.10
      */
     public static final String VALGRIND_INFO_IMAGE = "icons/RV-info.png"; //$NON-NLS-1$
+    public static final String LINK_IMAGE = "icons/link.png"; //$NON-NLS-1$
     private IDoubleClickListener doubleClickListener;
     private ITreeContentProvider contentProvider;
 
@@ -82,6 +90,12 @@ public class CoreMessagesViewer {
             ImageDescriptor d = AbstractUIPlugin.imageDescriptorFromPlugin(RVMatchPlugin.PLUGIN_ID, VALGRIND_INFO_IMAGE);
             if (d != null) {
                 imageRegistry.put(VALGRIND_INFO, d);
+            }
+        }
+        if (imageRegistry.getDescriptor(LINK) == null) {
+            ImageDescriptor d = AbstractUIPlugin.imageDescriptorFromPlugin(RVMatchPlugin.PLUGIN_ID, LINK_IMAGE);
+            if (d != null) {
+                imageRegistry.put(LINK, d);
             }
         }
         contentProvider = new ITreeContentProvider() {
@@ -132,6 +146,8 @@ public class CoreMessagesViewer {
                     image = DebugUITools.getImage(IDebugUIConstants.IMG_OBJS_STACKFRAME);
                 } else if (element instanceof ValgrindError)  {
                     image = imageRegistry.get(VALGRIND_ERROR);
+                } else if (element instanceof RVMatchCitation){
+                	image = imageRegistry.get(LINK);
                 } else {
                     image = imageRegistry.get(VALGRIND_INFO);
                 }
@@ -155,6 +171,26 @@ public class CoreMessagesViewer {
 								RVMatchPlugin.getDefault().getProfiledProject());
 				} catch (BadLocationException | CoreException e) {
 					RVMatchPlugin.log(e);
+				}
+			} else if (element instanceof RVMatchCitation) {
+				RVMatchCitation citation = (RVMatchCitation) element;
+				String source = citation.getSource();
+				String section = citation.getSection().trim();
+				try {
+					if ("C11".equals(source)) {
+						int endSection = section.indexOf(' ');
+						if (endSection != -1) {
+							section = section.substring(0, endSection);
+						}
+						String page = RVMatchPlugin.getDefault().getC11Page(section);
+						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
+								new URL("http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1548.pdf#page="+page+"&search="+section));
+					} else	if ("CERT-C".equals(source)) {
+						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
+								new URL("https://www.google.com/search?q=\""+section+"\"&as_sitesearch=securecoding.cert.org&btnI"));
+					}
+				} catch (PartInitException | MalformedURLException e) {
+					RVMatchPlugin.logErrorMessage("Could not launch webpage");
 				}
 			} else {
 				if (viewer.getExpandedState(element)) {

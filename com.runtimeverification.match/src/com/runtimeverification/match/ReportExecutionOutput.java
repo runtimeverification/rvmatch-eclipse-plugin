@@ -153,7 +153,20 @@ public class ReportExecutionOutput {
 		if (!reason.isEmpty()) {
 			sb.append("\n  ").append(reason);
 		}
-		sb.append("\n  ").append(errType).append(" (").append(title).append("). See ").append(citation);
+		sb.append("\n  ").append(errType).append(" (").append(title).append(").");
+		if (! citation.isEmpty()) {
+			String[] citations = citation.trim().split(";");
+			for (String ref:citations) {
+				ref = ref.trim();
+				int sourceEnd = ref.indexOf(' ');
+				String source = ref.substring(0, sourceEnd);
+				ref = ref.substring(sourceEnd).replaceAll("sec. ", "").trim();
+				for (String loc : ref.split(",")) {
+					sb.append("\n   see ").append(source).append(" section ").append(loc);
+				}
+			}
+			
+		}
 		return sb.toString();
 	}
 

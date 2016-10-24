@@ -30,7 +30,10 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import java.io.InputStream;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 
 public class RVMatchPlugin extends AbstractUIPlugin {
 
@@ -59,6 +62,9 @@ public class RVMatchPlugin extends AbstractUIPlugin {
 
     // The last profiled project
     private IProject project;
+    
+	private Map<String, String> c11SectionNames = new HashMap<>();
+	private Map<String, String> c11SectionPages = new HashMap<>();
 
     /**
      * The constructor
@@ -85,8 +91,33 @@ public class RVMatchPlugin extends AbstractUIPlugin {
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
+        
+        Properties c11TOC = new Properties();
+        InputStream in = RVMatchPlugin.class.getResourceAsStream("/C11TOC.properties");
+        c11TOC.load(in);
+        c11TOC.forEach((s,p) -> {
+        	String section = s.toString().trim();
+        	String key = section;
+        	int endIndex = section.indexOf(' ');        	
+        	if (endIndex != -1) {
+        		key = section.substring(0, endIndex);
+        		section = section.substring(endIndex).trim();
+        	}
+        	c11SectionNames.put(key, section);
+        	c11SectionPages.put(key, p.toString());
+        });
+        in.close();
+    }
+    
+    public String getC11Page(String key) {
+    	return c11SectionPages.get(key);
     }
 
+
+	public String getC11Name(String key) {
+		return c11SectionNames.get(key);
+	}
+        
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
@@ -300,8 +331,5 @@ public class RVMatchPlugin extends AbstractUIPlugin {
     public static void log(int status, String msg) {
         log(status, msg, null);
     }
-    
-    
-    
-    
+
 }

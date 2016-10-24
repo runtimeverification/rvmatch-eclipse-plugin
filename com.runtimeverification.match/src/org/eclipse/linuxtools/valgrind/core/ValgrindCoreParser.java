@@ -29,6 +29,10 @@ import org.eclipse.debug.core.sourcelookup.IPersistableSourceLocator2;
 import org.eclipse.debug.core.sourcelookup.ISourceLookupDirector;
 import org.eclipse.linuxtools.valgrind.core.ValgrindError;
 import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
+
+import com.runtimeverification.match.RVMatchCitation;
+import com.runtimeverification.match.RVMatchPlugin;
+
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.ValgrindParserUtils;
 
@@ -38,6 +42,7 @@ import org.eclipse.linuxtools.valgrind.core.ValgrindParserUtils;
 public class ValgrindCoreParser {
     private static final String AT = "at"; //$NON-NLS-1$
     private static final String BY = "by"; //$NON-NLS-1$
+    private static final String SEE = "see"; //$NON-NLS-1$
 
     private List<IValgrindMessage> messages;
     private ILaunch launch;
@@ -134,6 +139,22 @@ public class ValgrindCoreParser {
             int lineNo = (Integer) parsed[1];
             int columnNo = (Integer) parsed[2];
             return new ValgrindStackFrame(message, line, launch, locator, filename, lineNo, columnNo);
+        } else if (line.startsWith(SEE)) {
+        	line = line.substring(SEE.length()).trim();
+        	int sourceEnd = line.indexOf(' ');
+        	String source = line.substring(0, sourceEnd);
+        	String section = line.substring(sourceEnd + "section ".length()).trim();
+        	int sectionEnd = section.indexOf(':');
+        	String details = "";
+        	if (sectionEnd != -1) {
+        		details = section.substring(sectionEnd + 1);
+        		section = section.substring(0, sectionEnd);
+        	}
+        	String sectionName = RVMatchPlugin.getDefault().getC11Name(section);
+        	if (sectionName != null) {
+        		line += " (" +  sectionName + ")";
+        	}
+        	return new RVMatchCitation(message, line, launch, source, section, details);
         }
         return new ValgrindError(message, line, launch);
     }
