@@ -184,7 +184,7 @@ public class CoreMessagesViewer {
 						}
 						String page = RVMatchPlugin.getDefault().getC11Page(section);
 						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
-								new URL("http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1548.pdf#page="+page+"&search="+section));
+								new URL("http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf#page="+page+"&search="+section));
 					} else	if ("CERT-C".equals(source)) {
 						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
 								new URL("https://www.google.com/search?q=\""+section+"\"&as_sitesearch=securecoding.cert.org&btnI"));
