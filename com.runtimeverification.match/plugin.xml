@@ -32,17 +32,17 @@
       </command>
       -->
        <command
-            name="Select the RV Build Mode"
+            name="Create RV Match Build Configuration"
             categoryId="com.runtimeverification.match.commands.category"
             id="com.runtimeverification.match.commands.selectBuildCommand">
       </command>
        <command
-            name="Clear RV Match Markers"
+            name="Clear RV Match from Problems View"
             categoryId="com.runtimeverification.match.commands.category"
             id="com.runtimeverification.match.commands.clearMarkersCommand">
       </command>
       <command
-            name="Run with RV Match"
+            name="Run Current Run Configuration with RV Match"
             id="com.runtimeverification.match.commands.RVLauncher"
             categoryId="com.runtimeverification.match.commands.category">
       </command>  
@@ -86,7 +86,6 @@
             -->
             <command
                   commandId="com.runtimeverification.match.commands.RVLauncher"
-                  label="Run with RV Match"
                   mnemonic="R"
                   id="com.runtimeverification.match.menus.RVLauncherCommand">
             </command>
