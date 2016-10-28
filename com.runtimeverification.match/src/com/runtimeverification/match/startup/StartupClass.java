@@ -86,6 +86,7 @@ public class StartupClass implements IStartup {
 			if (outputFile.exists()) {
 				outputFile.delete();
 			}
+			outputFile.deleteOnExit();
 			Process process = new ProcessBuilder("mkfifo",reportFilePath.toString()).inheritIO().start();
 			process.waitFor();
 		} catch (IOException | InterruptedException e) {
