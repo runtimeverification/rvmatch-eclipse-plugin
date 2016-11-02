@@ -3,7 +3,9 @@ package com.runtimeverification.match.startup;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.cdt.core.model.ICProject;
 import org.eclipse.cdt.debug.core.CDebugUtils;
@@ -73,87 +75,51 @@ public class StartupClass implements IStartup {
 		}
 
 	}
-
-	private ReporterThread reportingThread = null;
+	
+	private Map<ILaunch, ReporterThread> reportingThreads = new HashMap<>();
 
 	@Override
 	public void earlyStartup() {
+		try {
+			Path reportFilePath = SelectBuildHandler.getReportFilePath().toAbsolutePath();
+			File outputFile = reportFilePath.toFile();				
+			if (outputFile.exists()) {
+				outputFile.delete();
+			}
+			outputFile.deleteOnExit();
+			Process process = new ProcessBuilder("mkfifo",reportFilePath.toString()).inheritIO().start();
+			process.waitFor();
+		} catch (IOException | InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		manager.addLaunchListener(new ILaunchListener() {
-
-
 			@Override
 			public void launchRemoved(ILaunch launch) {
-			}
-
-			@Override
-			public void launchChanged(ILaunch launch) {
-				ILaunchConfiguration config = launch.getLaunchConfiguration();
+				ReporterThread thread = reportingThreads.get(launch);
 				try {
-					if (!config.getAttribute("org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR", "").startsWith("rv.")) {
-						return;
-					}
-				} catch (CoreException e) {
+					thread.terminate();
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				reportingThread = new ReporterThread(launch);
-				
-				reportingThread.start();
-				IProcess[] processes = launch.getProcesses();
-				for (IProcess process : processes) {
-					if (!process.isTerminated()) {
-						DebugPlugin.getDefault().addDebugEventListener(new
-								IDebugEventSetListener() {
-							public void handleDebugEvents(DebugEvent[] events) {
-								for (int i = 0; i < events.length; i++) {
-									Object source = events[i].getSource();
-									if (source instanceof IProcess && (IProcess)source == process)
-									{
-										if (events[i].getKind() == DebugEvent.TERMINATE) {
-											DebugPlugin.getDefault().removeDebugEventListener(this);
-											launchTerminated(launch);
-										}
-									}
-								}
-							}
-						});
-					} else {
-						launchTerminated(launch);
-					}
-				}
+				reportingThreads.remove(launch);
 			}
 
 			@Override
 			public void launchAdded(ILaunch launch) {
 				ILaunchConfiguration config = launch.getLaunchConfiguration();
-				try {
-					if (!config.getAttribute("org.eclipse.cdt.launch.PROJECT_BUILD_CONFIG_ID_ATTR", "").startsWith("rv.")) {
-						return;
-					}
-					ICProject project;
-					project = CDebugUtils.getCProject(config);
-					Path reportFilePath = SelectBuildHandler.getReportFilePath(project.getProject()).toAbsolutePath();
-					File outputFile = reportFilePath.toFile();				
-					if (outputFile.exists()) {
-						outputFile.delete();
-					}
-					Process process = new ProcessBuilder("mkfifo",reportFilePath.toString()).inheritIO().start();
-					process.waitFor();
-				} catch (CoreException | IOException | InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				ReporterThread reportingThread = new ReporterThread(launch);
+				
+				reportingThread.start();
+				reportingThreads.put(launch, reportingThread);				
+			}
+
+			@Override
+			public void launchChanged(ILaunch launch) {
 			}
 		});
 	}
-
-	public void launchTerminated(ILaunch launch) {
-		try {
-			if (reportingThread != null) reportingThread.terminate();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 }

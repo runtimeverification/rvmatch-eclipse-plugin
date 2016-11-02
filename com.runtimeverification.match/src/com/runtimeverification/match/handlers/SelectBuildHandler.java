@@ -29,7 +29,7 @@ import com.runtimeverification.match.RVMatchPlugin;
 
 public class SelectBuildHandler extends AbstractHandler {
 
-	private static Path tmp = Paths.get(System.getProperty("java.io.tmpdir"));
+	private static Path home = Paths.get(System.getProperty("user.home"));
 
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
@@ -74,7 +74,7 @@ public class SelectBuildHandler extends AbstractHandler {
 		mngr.setProjectDescription(currentProject, projDes);
 		IManagedProject imgr = ManagedBuildManager.getBuildInfo(currentProject).getManagedProject();
 		IConfiguration conf = imgr.getConfiguration(rv.getId());
-		String reportFile = getReportFilePath(currentProject).toString();
+		String reportFile = getReportFilePath().toString();
 		IToolChain toolChain = conf.getToolChain();
 		ITool[] tools = toolChain.getTools();
 		for (ITool tool : tools) {
@@ -102,8 +102,8 @@ public class SelectBuildHandler extends AbstractHandler {
 		return rv;
 	}
 
-	public static Path getReportFilePath(IProject currentProject) {
-		return tmp.resolve(currentProject.getName().replace(' ', '_') + "-kcc-report.csv").toAbsolutePath();
+	public static Path getReportFilePath() {
+		return home.resolve(".kcc-report.csv").toAbsolutePath();
 	}
 
 }

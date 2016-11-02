@@ -33,7 +33,7 @@ public class ReportExecutionOutput {
 		ILaunchConfiguration config = launch.getLaunchConfiguration();
 		try {
 			project = CDebugUtils.getCProject(config);
-			outputPath = SelectBuildHandler.getReportFilePath(project.getProject());
+			outputPath = SelectBuildHandler.getReportFilePath();
 			bin = new BufferedReader(new FileReader(outputPath.toFile()));
 			RVMatchPlugin.getDefault().createView("RV Match", null);
 			view = RVMatchPlugin.getDefault().getView();
