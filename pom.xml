@@ -11,6 +11,7 @@
           <module>com.runtimeverification.match</module>
           <module>com.runtimeverification.match.feature</module>
           <module>com.runtimeverification.match.site</module>
+          <module>com.runtimeverification.match.target</module>
         </modules>
 	<properties>
 		<tycho-version>0.26.0</tycho-version>
