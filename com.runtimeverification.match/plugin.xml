@@ -84,23 +84,23 @@
                   id="com.runtimeverification.match.menus.kServerCommand">
             </command>
             -->
-            <command
+            <!--<command
                   commandId="com.runtimeverification.match.commands.RVLauncher"
                   mnemonic="R"
                   id="com.runtimeverification.match.menus.RVLauncherCommand">
-            </command>
+            </command>-->
             <command
                   commandId="com.runtimeverification.match.commands.clearMarkersCommand"
                   mnemonic="S"
                   id="com.runtimeverification.match.menus.clearMarkersCommand">
-            </command>
+            </command><!--
             <command
                   commandId="com.runtimeverification.match.commands.selectBuildCommand"
                   mnemonic="S"
                   id="com.runtimeverification.match.menus.selectBuildCommand">
-            </command>
+            </command>-->
          </menu>
-      </menuContribution>
+      </menuContribution><!--
       <menuContribution
             locationURI="toolbar:org.eclipse.ui.main.toolbar">
          <toolbar
@@ -114,9 +114,9 @@
                tooltip="Build and launch current project using RV Match"
                icon="icons/RV-icon.png"
                id="com.runtimeverification.match.toolbars.RVLauncherCommand">
-         </command>
+         </command>-->
                   <!-- style="pulldown" -->
-      </menuContribution>
+ <!--     </menuContribution>-->
    </extension>
 
    <extension-point id="com.runtimeverification.match.rvMatchToolViews" name="RV Match Tool" schema="schema/rvMatchToolViews.exsd"/>
