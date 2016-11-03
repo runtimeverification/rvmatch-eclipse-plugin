@@ -4,8 +4,8 @@
       label="RV Match Feature"
       version="1.0.2.qualifier"
       provider-name="Runtime Verification"
-      license-feature="org.eclipse.platform"
-      license-feature-version="4.6.1.v20160907-1200">
+      license-feature="org.eclipse.license"
+      license-feature-version="0.0.0">
 
    <description url="http://runtimeverification.com/eclipse">
       Feature for integrating RV Match with Eclipse
@@ -16,9 +16,7 @@
 Using code from the Linux Tools Valgrind plugin Copyright 2008-2013 Red Hat Inc. and others
    </copyright>
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
-   </license>
+   <license url="%licenseURL">%license</license>
 
    <plugin
          id="com.runtimeverification.match"
