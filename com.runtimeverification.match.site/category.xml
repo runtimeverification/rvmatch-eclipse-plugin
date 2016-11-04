@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.runtimeverification.match.feature_1.0.2.201610171437.jar" id="com.runtimeverification.match.feature" version="1.0.2.201610171437">
+   <feature url="features/com.runtimeverification.match.feature_1.0.2.qualifier.jar" id="com.runtimeverification.match.feature" version="1.0.2.qualifier">
       <category name="rv-match-site"/>
    </feature>
    <category-def name="rv-match-site" label="RV Match Eclipse Integration"/>
