@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
       id="com.runtimeverification.match.feature"
-      label="RV Match Feature"
+      label="%featureName"
       version="1.0.2.qualifier"
-      provider-name="Runtime Verification"
+      provider-name="%featureProvider"
       license-feature="org.eclipse.license"
       license-feature-version="0.0.0">
 
-   <description url="http://runtimeverification.com/eclipse">
-      Feature for integrating RV Match with Eclipse
+   <description>
+      %description
    </description>
 
-   <copyright url="http://runtimeverification.com">
-      Copyright 2016 Runtime Verification, Inc.
-Using code from the Linux Tools Valgrind plugin Copyright 2008-2013 Red Hat Inc. and others
+   <copyright>
+      %copyright
    </copyright>
 
-   <license url="%licenseURL">%license</license>
+   <license url="%licenseURL">
+      %license
+   </license>
 
    <plugin
          id="com.runtimeverification.match"
