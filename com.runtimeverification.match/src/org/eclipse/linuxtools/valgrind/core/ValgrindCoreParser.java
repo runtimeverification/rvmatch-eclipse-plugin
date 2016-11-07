@@ -141,6 +141,14 @@ public class ValgrindCoreParser {
             return new ValgrindStackFrame(message, line, launch, locator, filename, lineNo, columnNo);
         } else if (line.startsWith(SEE)) {
         	line = line.substring(SEE.length()).trim();
+            int urlStart = line.indexOf("http://");
+        	String url;
+        	if (urlStart != -1) {
+        		url = line.substring(urlStart);
+        		line = line.substring(0, urlStart-1);
+        	} else {
+        		url = "";
+        	}
         	int sourceEnd = line.indexOf(' ');
         	String source = line.substring(0, sourceEnd);
         	String section = line.substring(sourceEnd + "section ".length()).trim();
@@ -154,7 +162,7 @@ public class ValgrindCoreParser {
         	if (sectionName != null) {
         		line += " (" +  sectionName + ")";
         	}
-        	return new RVMatchCitation(message, line, launch, source, section, details);
+        	return new RVMatchCitation(message, line, launch, source, section, details, url);
         }
         return new ValgrindError(message, line, launch);
     }
