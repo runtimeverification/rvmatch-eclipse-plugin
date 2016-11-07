@@ -169,7 +169,7 @@ public class ReportExecutionOutput {
 		sb.append("\n  ").append(errType).append(" (").append(title).append(").");
 		try {
 			List<String> citationRecord;
-			BufferedReader citStream = new BufferedReader(new StringReader(citation));
+			BufferedReader citStream = new BufferedReader(new StringReader(citation + "\n"));
 			while ((citationRecord = parseCSVRecord(citStream)) != null) {
 				String source = citationRecord.get(0);
 				String section = citationRecord.get(1);
