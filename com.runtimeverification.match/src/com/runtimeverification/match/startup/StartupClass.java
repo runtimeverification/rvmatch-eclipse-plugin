@@ -33,21 +33,26 @@ public class StartupClass implements IStartup {
 	public class ReporterThread extends Thread {
 		ILaunch launch;
 		private boolean done;
+		private ReportExecutionOutput outputParser;
 		
 		public ReporterThread(ILaunch launch) {
 			this.launch = launch;
 			done = false;
+			outputParser = null;
 		}
 		
 		public void terminate() throws InterruptedException {
 			done = true;
+			if (outputParser != null) {
+				outputParser.terminate();
+			}
 			this.join();
 		}
 		
 		@Override
 		public void run() {
 			try {
-				ReportExecutionOutput outputParser = new ReportExecutionOutput(launch); 
+				outputParser = new ReportExecutionOutput(launch);
 				outputParser.getProject().deleteMarkers(RVMatchPlugin.MARKER_TYPE, true,IResource.DEPTH_INFINITE);
 
 				// clear valgrind error view
@@ -61,7 +66,7 @@ public class StartupClass implements IStartup {
 						if (done) {
 							ResourcesPlugin.getWorkspace().addResourceChangeListener(
 									new ProjectBuildListener(outputParser.getProject(), RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.MARKER_TYPE), IResourceChangeEvent.POST_BUILD);
-							
+
 							break;
 						}
 						sleep(1000);
@@ -93,7 +98,7 @@ public class StartupClass implements IStartup {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
 		manager.addLaunchListener(new ILaunchListener() {
 			@Override
@@ -112,9 +117,9 @@ public class StartupClass implements IStartup {
 			public void launchAdded(ILaunch launch) {
 				ILaunchConfiguration config = launch.getLaunchConfiguration();
 				ReporterThread reportingThread = new ReporterThread(launch);
-				
+
 				reportingThread.start();
-				reportingThreads.put(launch, reportingThread);				
+				reportingThreads.put(launch, reportingThread);
 			}
 
 			@Override

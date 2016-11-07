@@ -174,23 +174,14 @@ public class CoreMessagesViewer {
 				}
 			} else if (element instanceof RVMatchCitation) {
 				RVMatchCitation citation = (RVMatchCitation) element;
-				String source = citation.getSource();
-				String section = citation.getSection().trim();
-				try {
-					if ("C11".equals(source)) {
-						int endSection = section.indexOf(' ');
-						if (endSection != -1) {
-							section = section.substring(0, endSection);
-						}
-						String page = RVMatchPlugin.getDefault().getC11Page(section);
+				String url = citation.getUrl();
+				if (! url.isEmpty()) {
+					try {
 						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
-								new URL("http://www.open-std.org/jtc1/sc22/wg14/www/docs/n1570.pdf#page="+page+"&search="+section));
-					} else	if ("CERT-C".equals(source)) {
-						PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(
-								new URL("https://www.google.com/search?q=\""+section+"\"&as_sitesearch=securecoding.cert.org&btnI"));
+								new URL(url));
+    				} catch (PartInitException | MalformedURLException e) {
+    					RVMatchPlugin.logErrorMessage("Could not launch webpage " + url);
 					}
-				} catch (PartInitException | MalformedURLException e) {
-					RVMatchPlugin.logErrorMessage("Could not launch webpage");
 				}
 			} else {
 				if (viewer.getExpandedState(element)) {

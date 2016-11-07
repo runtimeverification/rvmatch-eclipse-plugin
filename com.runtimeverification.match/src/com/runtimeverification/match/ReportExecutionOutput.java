@@ -2,8 +2,10 @@ package com.runtimeverification.match;
 
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.ILaunchConfiguration;
 import org.eclipse.linuxtools.valgrind.launch.ProjectBuildListener;
@@ -34,12 +37,11 @@ public class ReportExecutionOutput {
 		try {
 			project = CDebugUtils.getCProject(config);
 			outputPath = SelectBuildHandler.getReportFilePath();
-			bin = new BufferedReader(new FileReader(outputPath.toFile()));
 			RVMatchPlugin.getDefault().createView("RV Match", null);
 			view = RVMatchPlugin.getDefault().getView();
 			parser = new ValgrindCoreParser(launch);
 			delegate = new ValgrindLaunchConfigurationDelegate(RVMatchPlugin.MARKER_TYPE);
-
+			bin = null; // because opening a named pipe is blocking we postpone opening it to the first usage.
 		} catch (CoreException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,6 +75,13 @@ public class ReportExecutionOutput {
 	}
 
 	public List<String> parseCSVRecord() throws IOException {
+		if (bin == null) {
+			bin = new BufferedReader(new FileReader(outputPath.toFile()));
+		}
+		return parseCSVRecord(bin);
+	}
+
+	private List<String> parseCSVRecord(BufferedReader bin) throws IOException {
 		List<String> record = new ArrayList<>();
 		boolean inString = false;
 		boolean skipWhiteSpace = true;
@@ -124,7 +133,6 @@ public class ReportExecutionOutput {
 	}
 
 	/**
-	 * @param parser
 	 * @param record
 	 * @throws IOException
 	 * @throws CoreException
@@ -148,26 +156,47 @@ public class ReportExecutionOutput {
 		StringBuilder sb = new StringBuilder();
 		sb.append(' ').append(msg);
 		if (!trace.isEmpty()) {
-			sb.append("\n   ").append(trace);
+			sb.append("\n   ");
+			if (! trace.contains("at ")) {
+				sb.append("at (").append(trace).append(')');
+			} else {
+				sb.append(trace);
+			}
 		}
 		if (!reason.isEmpty()) {
 			sb.append("\n  ").append(reason);
 		}
 		sb.append("\n  ").append(errType).append(" (").append(title).append(").");
-		if (! citation.isEmpty()) {
-			String[] citations = citation.trim().split(";");
-			for (String ref:citations) {
-				ref = ref.trim();
-				int sourceEnd = ref.indexOf(' ');
-				String source = ref.substring(0, sourceEnd);
-				ref = ref.substring(sourceEnd).replaceAll("sec. ", "").trim();
-				for (String loc : ref.split(",")) {
-					sb.append("\n   see ").append(source).append(" section ").append(loc);
+		try {
+			List<String> citationRecord;
+			BufferedReader citStream = new BufferedReader(new StringReader(citation));
+			while ((citationRecord = parseCSVRecord(citStream)) != null) {
+				String source = citationRecord.get(0);
+				String section = citationRecord.get(1);
+				String details = citationRecord.get(2);
+				String url = citationRecord.get(3);
+				sb.append("\n   see ").append(source).append(" section ").append(section);
+				if (! details.isEmpty()) {
+					sb.append(':').append(details);
 				}
+				sb.append(' ').append(url);
 			}
-			
+		} catch (IOException e) {
+			RVMatchPlugin.log(IStatus.ERROR, "Malformated citations", e);
 		}
 		return sb.toString();
 	}
 
+	/*
+	 * To avoid blocking because no process has written to the pipe, we write here something.
+	 */
+	public void terminate() {
+		try {
+			OutputStream bout = new FileOutputStream(outputPath.toFile());
+			bout.write("\n".getBytes());
+			bout.close();
+		} catch (IOException e) {
+			RVMatchPlugin.log(IStatus.ERROR, "Error while closing the pipe", e);
+		}
+	}
 }
