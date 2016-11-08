@@ -21,7 +21,6 @@ import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 public class AbstractValgrindMessage implements IValgrindMessage {
 
     private IValgrindMessage parent;
-    private ILaunch launch;
     private ArrayList<IValgrindMessage> children;
     private String text;
 
@@ -31,11 +30,10 @@ public class AbstractValgrindMessage implements IValgrindMessage {
      * @param text - message text, cannot be null
      * @param launch - launch object, can be null
      */
-    public AbstractValgrindMessage(IValgrindMessage parent, String text, ILaunch launch) {
+    public AbstractValgrindMessage(IValgrindMessage parent, String text) {
         children = new ArrayList<>();
         this.parent = parent;
         this.text = text;
-        this.launch = launch;
 
         if (parent != null) {
             parent.addChild(this);
@@ -49,7 +47,7 @@ public class AbstractValgrindMessage implements IValgrindMessage {
 
     @Override
     public ILaunch getLaunch() {
-        return launch;
+        return null;
     }
 
     @Override

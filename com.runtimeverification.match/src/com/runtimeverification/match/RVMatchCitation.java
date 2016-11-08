@@ -1,6 +1,5 @@
 package com.runtimeverification.match;
 
-import org.eclipse.debug.core.ILaunch;
 import org.eclipse.linuxtools.valgrind.core.AbstractValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 
@@ -10,8 +9,8 @@ public class RVMatchCitation extends AbstractValgrindMessage {
 	private String details;
 	private String url;
 
-	public RVMatchCitation(IValgrindMessage parent, String text, ILaunch launch, String source, String section, String details, String url) {
-		super(parent, text, launch);
+	public RVMatchCitation(IValgrindMessage parent, String text, String source, String section, String details, String url) {
+		super(parent, text);
 		this.source = source;
 		this.section = section;
 		this.details = details;

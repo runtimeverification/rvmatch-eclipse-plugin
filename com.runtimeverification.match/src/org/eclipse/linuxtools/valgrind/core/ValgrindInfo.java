@@ -27,8 +27,8 @@ public class ValgrindInfo extends AbstractValgrindMessage {
      * @param text - message test cannot be null
      * @param launch - launch object can be null
      */
-    public ValgrindInfo(IValgrindMessage parent, String text, ILaunch launch) {
-        super(parent, text, launch);
+    public ValgrindInfo(IValgrindMessage parent, String text) {
+        super(parent, text);
     }
 
 }
