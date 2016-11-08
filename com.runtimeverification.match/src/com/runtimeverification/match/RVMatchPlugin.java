@@ -48,7 +48,8 @@ public class RVMatchPlugin extends AbstractUIPlugin {
 
     // The plug-in ID
     public static final String PLUGIN_ID = "com.runtimeverification.match"; //$NON-NLS-1$
-    public static final String MARKER_TYPE = PLUGIN_ID + ".marker"; //$NON-NLS-1$
+    public static final String EXECUTION_MARKER_TYPE = PLUGIN_ID + ".marker.execution"; //$NON-NLS-1$
+    public static final String COMPILATION_MARKER_TYPE = PLUGIN_ID + ".marker.compilation"; //$NON-NLS-1$
 
     // Extension point constants
     private static final String VIEW_EXT_ID = "rvMatchToolViews"; //$NON-NLS-1$
@@ -103,7 +104,8 @@ public class RVMatchPlugin extends AbstractUIPlugin {
         
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         try {
-            root.deleteMarkers(MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            root.deleteMarkers(EXECUTION_MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            root.deleteMarkers(COMPILATION_MARKER_TYPE, true, IResource.DEPTH_INFINITE);
         } catch (CoreException e) {
             // do nothing for now
         }

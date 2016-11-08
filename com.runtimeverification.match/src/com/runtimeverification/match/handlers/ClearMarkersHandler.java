@@ -28,7 +28,8 @@ public class ClearMarkersHandler extends AbstractHandler {
     public Object execute(ExecutionEvent event) {
         IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
         try {
-            root.deleteMarkers(RVMatchPlugin.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            root.deleteMarkers(RVMatchPlugin.EXECUTION_MARKER_TYPE, true, IResource.DEPTH_INFINITE);
+            root.deleteMarkers(RVMatchPlugin.COMPILATION_MARKER_TYPE, true, IResource.DEPTH_INFINITE);
         } catch (CoreException e) {
             // do nothing for now
         }

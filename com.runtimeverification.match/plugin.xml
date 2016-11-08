@@ -150,7 +150,22 @@
       </menuContribution>
    </extension>
    <extension
-         id="com.runtimeverification.match.marker"
+         id="com.runtimeverification.match.marker.execution"
+         name="RV Match Problem"
+         point="org.eclipse.core.resources.markers">
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
+      <super
+            type="org.eclipse.core.resources.textmarker">
+      </super>
+      <persistent
+            value="true">
+      </persistent>
+      <attribute name="externalLocation"/>
+   </extension>   
+   <extension
+         id="com.runtimeverification.match.marker.compilation"
          name="RV Match Problem"
          point="org.eclipse.core.resources.markers">
       <super
@@ -168,19 +183,40 @@
           point="org.eclipse.ui.editors.annotationTypes">
        <type
              markerSeverity="2"
-             markerType="com.runtimeverification.match.marker"
+             markerType="com.runtimeverification.match.marker.compilation"
              name="com.runtimeverification.match.annotation.error"
              super="org.eclipse.ui.workbench.texteditor.error">
        </type>
        <type
              markerSeverity="1"
-             markerType="com.runtimeverification.match.marker"
+             markerType="com.runtimeverification.match.marker.compilation"
              name="com.runtimeverification.match.annotation.warning"
              super="org.eclipse.ui.workbench.texteditor.warning">
        </type>
        <type
              markerSeverity="0"
-             markerType="com.runtimeverification.match.marker"
+             markerType="com.runtimeverification.match.marker.compilation"
+             name="com.runtimeverification.match.annotation.info"
+             super="org.eclipse.ui.workbench.texteditor.info">
+       </type>
+    </extension>
+    <extension
+          point="org.eclipse.ui.editors.annotationTypes">
+       <type
+             markerSeverity="2"
+             markerType="com.runtimeverification.match.marker.execution"
+             name="com.runtimeverification.match.annotation.error"
+             super="org.eclipse.ui.workbench.texteditor.error">
+       </type>
+       <type
+             markerSeverity="1"
+             markerType="com.runtimeverification.match.marker.execution"
+             name="com.runtimeverification.match.annotation.warning"
+             super="org.eclipse.ui.workbench.texteditor.warning">
+       </type>
+       <type
+             markerSeverity="0"
+             markerType="com.runtimeverification.match.marker.execution"
              name="com.runtimeverification.match.annotation.info"
              super="org.eclipse.ui.workbench.texteditor.info">
        </type>

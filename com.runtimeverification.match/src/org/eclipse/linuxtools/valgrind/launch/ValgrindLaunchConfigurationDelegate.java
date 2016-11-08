@@ -33,13 +33,7 @@ import org.eclipse.linuxtools.valgrind.core.ValgrindStackFrame;
 
 public class ValgrindLaunchConfigurationDelegate {
 	
-	private String markerType;
-
-	public ValgrindLaunchConfigurationDelegate(String markerType) {
-		this.markerType = markerType;
-	}
-
-	public void createMarkers(IValgrindMessage[] messages) throws CoreException {
+	public void createMarkers(IValgrindMessage[] messages, String markerType) throws CoreException {
 		// find the topmost stack frame within the workspace to annotate with marker
 		// traverse nested errors as well
 		Stack<IValgrindMessage> messageStack = new Stack<>();

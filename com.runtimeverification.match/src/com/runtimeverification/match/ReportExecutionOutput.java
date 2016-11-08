@@ -32,7 +32,8 @@ public class ReportExecutionOutput {
 			RVMatchPlugin.getDefault().createView("RV Match", null);
 			view = RVMatchPlugin.getDefault().getView();
 			parser = new ValgrindCoreParser();
-			delegate = new ValgrindLaunchConfigurationDelegate(RVMatchPlugin.MARKER_TYPE);
+			delegate = new ValgrindLaunchConfigurationDelegate();
+			compilationFlag = false;
 			bin = null; // because opening a named pipe is blocking we postpone opening it to the first usage.
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -105,6 +106,7 @@ public class ReportExecutionOutput {
 	private Path outputPath;
 	private InputStream bin;
 	private ValgrindCoreParser parser;
+	private boolean compilationFlag;
 
 	public void parseLogs() throws IOException, CoreException {
 			
@@ -124,7 +126,8 @@ public class ReportExecutionOutput {
 		BufferedReader br = new BufferedReader(new StringReader(formatRecord(record)));
 		List<IValgrindMessage> resultList = parser.parseBuffer(br);
 		messages.addAll(resultList);
-		delegate.createMarkers(resultList.toArray(new IValgrindMessage[resultList.size()]));
+		delegate.createMarkers(resultList.toArray(new IValgrindMessage[resultList.size()]), 
+				compilationFlag ? RVMatchPlugin.COMPILATION_MARKER_TYPE : RVMatchPlugin.EXECUTION_MARKER_TYPE);
 		view.setMessages(messages.toArray(new IValgrindMessage[messages.size()]));
 
 		// refresh view
@@ -142,7 +145,9 @@ public class ReportExecutionOutput {
 			sb.append("\n   ");
 			if (! trace.contains("at ")) {
 				sb.append("at (").append(trace).append(')');
+				compilationFlag = true;
 			} else {
+				compilationFlag = false;
 				sb.append(trace);
 			}
 		}

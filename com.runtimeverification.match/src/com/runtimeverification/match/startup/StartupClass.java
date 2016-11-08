@@ -77,8 +77,10 @@ public class StartupClass implements IStartup {
 		}
 
 		outputParser = new ReportExecutionOutput();
+//		ResourcesPlugin.getWorkspace().addResourceChangeListener(
+//				new ProjectBuildListener(RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.EXECUTION_MARKER_TYPE, outputParser), IResourceChangeEvent.POST_BUILD);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-				new ProjectBuildListener(RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.MARKER_TYPE, outputParser), IResourceChangeEvent.POST_BUILD);
+				new ProjectBuildListener(RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.EXECUTION_MARKER_TYPE, outputParser), IResourceChangeEvent.POST_BUILD);
 
 		ReporterThread reportingThread = new ReporterThread();
 		reportingThread.start();
