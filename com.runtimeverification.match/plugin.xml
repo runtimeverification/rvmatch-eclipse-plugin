@@ -136,6 +136,18 @@
          point="org.eclipse.ui.menus">
       <menuContribution
             locationURI="toolbar:com.runtimeverification.match.rvmatchview">
+         <command
+               commandId="com.runtimeverification.match.commands.clearMarkersCommand"
+               icon="icons/clear.png"
+               id="com.runtimeverification.match.commands.clearMarkersCommand"
+               label="Clear"
+               name="clearView"
+               style="push"
+               tooltip="Clear Errors">
+         </command>
+      </menuContribution>
+      <menuContribution
+            locationURI="toolbar:com.runtimeverification.match.rvmatchview?after=clearView">
          <separator
                name="toolbarLocal"
                visible="false">
