@@ -148,7 +148,7 @@ public class ReportExecutionOutput {
 		RVMatchPlugin.getDefault().refreshView();
 
 		// show view
-		RVMatchPlugin.getDefault().showView();
+		// RVMatchPlugin.getDefault().showView();
 	}
 
 	private String formatRecord(List<String> record) {
