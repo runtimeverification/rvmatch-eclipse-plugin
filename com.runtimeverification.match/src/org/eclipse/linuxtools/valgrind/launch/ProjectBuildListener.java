@@ -16,13 +16,13 @@ import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.widgets.Display;
 
 import com.runtimeverification.match.RVMatchPlugin;
+import com.runtimeverification.match.ReportExecutionOutput;
 
 /**
  * Implementation of {@link IResourceChangeListener} that listens for project
@@ -30,30 +30,29 @@ import com.runtimeverification.match.RVMatchPlugin;
  */
 public class ProjectBuildListener implements IResourceChangeListener {
 
-    // project to keep track of
-    private IProject project;
 	private String markerType;
 	private String pluginId;
+	private ReportExecutionOutput outputParser;
 
-    public ProjectBuildListener(IProject targetProject, String pluginId, String markerType) {
-        project = targetProject;
+    public ProjectBuildListener(String pluginId, String markerType, ReportExecutionOutput outputParser) {
 		this.pluginId = pluginId;
         this.markerType = markerType;
+        this.outputParser = outputParser;
     }
 
     @Override
     public void resourceChanged(IResourceChangeEvent event) {
-        if (project != null && isPostBuildEvent(event)) {
+        if (isPostBuildEvent(event)) {
 
             // find the project from event delta and  delete its markers
             IResourceDelta delta = event.getDelta();
             IResourceDelta[] childrenDelta = delta.getAffectedChildren(IResourceDelta.CHANGED);
             for (IResourceDelta childDelta : childrenDelta) {
-                if (isProjectDelta(childDelta, project)) {
-
+                if (isProjectDelta(childDelta)) {
                     // clear markers and de-register this listener
-                    clearProjectMarkers(project);
-                    ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
+                    clearProjectMarkers((IProject) childDelta.getResource());
+                    outputParser.reset();
+//                    ResourcesPlugin.getWorkspace().removeResourceChangeListener(this);
                 }
             }
         }
@@ -66,13 +65,12 @@ public class ProjectBuildListener implements IResourceChangeListener {
      * @param project IProject project to compare against
      * @return boolean true if IResourceDelta is a project and equals the
      */
-    private boolean isProjectDelta(IResourceDelta delta, IProject project){
+    private boolean isProjectDelta(IResourceDelta delta){
         if(delta != null){
             IResource resource = delta.getResource();
             return delta.getKind() == IResourceDelta.CHANGED
                     && resource != null
-                    && resource.getType() == IResource.PROJECT
-                    && resource.equals(project);
+                    && resource.getType() == IResource.PROJECT;
         }
         return false;
     }

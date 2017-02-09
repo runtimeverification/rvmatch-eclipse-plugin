@@ -13,8 +13,12 @@ package org.eclipse.linuxtools.valgrind.core;
 
 import org.eclipse.debug.core.ILaunch;
 import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.sourcelookup.ISourceLookupResult;
 import org.eclipse.linuxtools.valgrind.core.AbstractValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
+
+import com.runtimeverification.match.RVMatchPlugin;
 
 /**
  * Valgrind stack frame message, i.e. message that carry a location of the error or a single stack frame info
@@ -23,7 +27,6 @@ public class ValgrindStackFrame extends AbstractValgrindMessage {
 	protected String file;
 	protected int line;
 	protected int column;
-	private ISourceLocator locator;
 
     /**
      * Constructor
@@ -34,12 +37,11 @@ public class ValgrindStackFrame extends AbstractValgrindMessage {
      * @param file - string representation of a source file (path)
      * @param line - line number of the source
      */
-	public ValgrindStackFrame(IValgrindMessage parent, String text, ILaunch launch, ISourceLocator locator, String file, int line, int column) {
-		super(parent, text, launch);
+	public ValgrindStackFrame(IValgrindMessage parent, String text, String file, int line, int column) {
+		super(parent, text);
 		this.file = file;
 		this.line = line;
 		this.column = column;
-		this.locator = locator;
 	}
 
 	/**
@@ -75,8 +77,10 @@ public class ValgrindStackFrame extends AbstractValgrindMessage {
 	 * @return source locator object, can be null
 	 */
 	public ISourceLocator getSourceLocator() {
-		if (locator != null)
+		ISourceLocator locator = RVMatchPlugin.getDefault().getSourceLocator(file);
+		if (locator != null) {
 			return locator;
+		}
 		if (getLaunch() != null) {
 			return getLaunch().getSourceLocator();
 		}

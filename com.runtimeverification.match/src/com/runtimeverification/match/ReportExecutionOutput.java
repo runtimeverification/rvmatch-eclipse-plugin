@@ -2,24 +2,19 @@ package com.runtimeverification.match;
 
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.cdt.core.model.ICProject;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResourceChangeEvent;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.debug.core.ILaunch;
-import org.eclipse.debug.core.ILaunchConfiguration;
-import org.eclipse.linuxtools.valgrind.launch.ProjectBuildListener;
 import org.eclipse.linuxtools.valgrind.launch.ValgrindLaunchConfigurationDelegate;
 import org.eclipse.linuxtools.valgrind.ui.ValgrindViewPart;
 
@@ -27,30 +22,23 @@ import com.runtimeverification.match.handlers.SelectBuildHandler;
 
 import org.eclipse.linuxtools.valgrind.core.IValgrindMessage;
 import org.eclipse.linuxtools.valgrind.core.ValgrindCoreParser;
-import org.eclipse.cdt.debug.core.CDebugUtils;
 
 public class ReportExecutionOutput {
 	private ValgrindLaunchConfigurationDelegate delegate;
     
-    public ReportExecutionOutput(ILaunch launch) {
-		ILaunchConfiguration config = launch.getLaunchConfiguration();
+    public ReportExecutionOutput() {
 		try {
-			project = CDebugUtils.getCProject(config);
 			outputPath = SelectBuildHandler.getReportFilePath();
 			RVMatchPlugin.getDefault().createView("RV Match", null);
 			view = RVMatchPlugin.getDefault().getView();
-			parser = new ValgrindCoreParser(launch);
+			parser = new ValgrindCoreParser();
 			delegate = new ValgrindLaunchConfigurationDelegate(RVMatchPlugin.MARKER_TYPE);
 			bin = null; // because opening a named pipe is blocking we postpone opening it to the first usage.
-		} catch (CoreException | IOException e) {
+		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     	
-    }
-    
-    public IProject getProject() {
-    	return project.getProject();
     }
 
 	public void checkRVMatchOutput() throws CoreException, IOException {
@@ -58,8 +46,6 @@ public class ReportExecutionOutput {
 			System.out.println("Processing " + outputPath.toString());
 			parseLogs();
 			outputPath.toFile().delete();
-			ResourcesPlugin.getWorkspace().addResourceChangeListener(
-					new ProjectBuildListener(project.getProject(), RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.MARKER_TYPE), IResourceChangeEvent.POST_BUILD);
 		} else {
 			System.out.println("File " + outputPath.toString() + " not found.");
 		}
@@ -76,12 +62,12 @@ public class ReportExecutionOutput {
 
 	public List<String> parseCSVRecord() throws IOException {
 		if (bin == null) {
-			bin = new BufferedReader(new FileReader(outputPath.toFile()));
+			bin = new FileInputStream(outputPath.toFile());
 		}
 		return parseCSVRecord(bin);
 	}
 
-	private List<String> parseCSVRecord(BufferedReader bin) throws IOException {
+	private List<String> parseCSVRecord(InputStream bin) throws IOException {
 		List<String> record = new ArrayList<>();
 		boolean inString = false;
 		boolean skipWhiteSpace = true;
@@ -115,10 +101,9 @@ public class ReportExecutionOutput {
 	}
 
 	private List<IValgrindMessage> messages = new ArrayList<>();
-	private ICProject project;
 	private ValgrindViewPart view;
 	private Path outputPath;
-	private BufferedReader bin;
+	private InputStream bin;
 	private ValgrindCoreParser parser;
 
 	public void parseLogs() throws IOException, CoreException {
@@ -128,8 +113,6 @@ public class ReportExecutionOutput {
 			handleRecord(record);
 
 		}
-		ResourcesPlugin.getWorkspace().addResourceChangeListener(
-				new ProjectBuildListener(project.getProject(), RVMatchPlugin.PLUGIN_ID, RVMatchPlugin.MARKER_TYPE), IResourceChangeEvent.POST_BUILD);
 	}
 
 	/**
@@ -169,7 +152,7 @@ public class ReportExecutionOutput {
 		sb.append("\n  ").append(errType).append(" (").append(title).append(").");
 		try {
 			List<String> citationRecord;
-			BufferedReader citStream = new BufferedReader(new StringReader(citation + "\n"));
+			InputStream citStream = new ByteArrayInputStream((citation + "\n").getBytes());
 			while ((citationRecord = parseCSVRecord(citStream)) != null) {
 				String source = citationRecord.get(0);
 				String section = citationRecord.get(1);
@@ -198,5 +181,9 @@ public class ReportExecutionOutput {
 		} catch (IOException e) {
 			RVMatchPlugin.log(IStatus.ERROR, "Error while closing the pipe", e);
 		}
+	}
+
+	public void reset() {
+		messages.clear();
 	}
 }

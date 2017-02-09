@@ -22,6 +22,12 @@ import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.debug.core.DebugPlugin;
+import org.eclipse.debug.core.ILaunch;
+import org.eclipse.debug.core.ILaunchManager;
+import org.eclipse.debug.core.model.ISourceLocator;
+import org.eclipse.debug.ui.DebugUITools;
+import org.eclipse.debug.ui.sourcelookup.ISourceLookupResult;
 import org.eclipse.linuxtools.valgrind.ui.IValgrindToolView;
 import org.eclipse.linuxtools.valgrind.ui.ValgrindViewPart;
 import org.eclipse.swt.widgets.Display;
@@ -344,4 +350,20 @@ public class RVMatchPlugin extends AbstractUIPlugin {
         log(status, msg, null);
     }
 
+	public ISourceLocator getSourceLocator(String file) {
+		ILaunchManager manager = DebugPlugin.getDefault().getLaunchManager();
+		for (ILaunch launch : manager.getLaunches()) {
+			ISourceLocator locator = launch.getSourceLocator();
+			if (locator != null) {
+				ISourceLookupResult result = DebugUITools.lookupSource(file, locator);
+				Object sourceElement = result.getSourceElement();
+
+				if (sourceElement != null) {
+					return locator;
+				}
+			}
+		}
+		return null;
+	}
+   
 }

@@ -27,8 +27,8 @@ public class ValgrindError extends AbstractValgrindMessage {
      * @param launch - launch object can be null
      * @param pid - process pid
      */
-    public ValgrindError(IValgrindMessage parent, String text, ILaunch launch) {
-        super(parent, text, launch);
+    public ValgrindError(IValgrindMessage parent, String text) {
+        super(parent, text);
     }
 
     @Override

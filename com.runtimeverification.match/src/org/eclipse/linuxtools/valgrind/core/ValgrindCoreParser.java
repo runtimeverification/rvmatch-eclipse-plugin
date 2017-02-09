@@ -45,8 +45,6 @@ public class ValgrindCoreParser {
     private static final String SEE = "see"; //$NON-NLS-1$
 
     private List<IValgrindMessage> messages;
-    private ILaunch launch;
-    private ISourceLocator locator;
 
     /**
      * When using this method make sure locator passed to this method can
@@ -59,8 +57,8 @@ public class ValgrindCoreParser {
      *            - launch object, can be null
      * @throws IOException if file is not found or error reading it
      */
-    public ValgrindCoreParser(File inputFile, ILaunch launch) throws IOException {
-    	this(launch);
+    public ValgrindCoreParser(File inputFile) throws IOException {
+    	this();
 
         BufferedReader br = new BufferedReader(new FileReader(inputFile));
         messages = parseBuffer(br);
@@ -138,10 +136,10 @@ public class ValgrindCoreParser {
             String filename = (String) parsed[0];
             int lineNo = (Integer) parsed[1];
             int columnNo = (Integer) parsed[2];
-            return new ValgrindStackFrame(message, line, launch, locator, filename, lineNo, columnNo);
+            return new ValgrindStackFrame(message, line, filename, lineNo, columnNo);
         } else if (line.startsWith(SEE)) {
         	line = line.substring(SEE.length()).trim();
-            int urlStart = line.indexOf("http://");
+        	int urlStart = line.indexOf("http://");
         	String url;
         	if (urlStart != -1) {
         		url = line.substring(urlStart);
@@ -162,9 +160,9 @@ public class ValgrindCoreParser {
         	if (sectionName != null) {
         		line += " (" +  sectionName + ")";
         	}
-        	return new RVMatchCitation(message, line, launch, source, section, details, url);
+        	return new RVMatchCitation(message, line, source, section, details, url);
         }
-        return new ValgrindError(message, line, launch);
+        return new ValgrindError(message, line);
     }
 
     /**
@@ -180,9 +178,9 @@ public class ValgrindCoreParser {
     	messages.clear();
 	}
 
-    public ValgrindCoreParser(ILaunch launch) throws IOException {
-        this.launch = launch;
-        this.locator = copyLaunchSourceLocator(launch);
+    public ValgrindCoreParser() throws IOException {
+//        this.launch = launch;
+//        this.locator = copyLaunchSourceLocator(launch);
         messages = new ArrayList<>();
 	}
     
